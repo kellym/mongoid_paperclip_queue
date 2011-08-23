@@ -1,3 +1,11 @@
+
+begin
+  require "paperclip"
+rescue LoadError
+  puts "Mongoid::PaperclipQueue requires that you install the Paperclip gem."
+  exit
+end
+
 module Mongoid::PaperclipQueue
   
     class Queue
