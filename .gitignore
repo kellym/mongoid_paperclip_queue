@@ -1,0 +1,4 @@
+*.log
+pkg/
+public/
+Gemfile.lock

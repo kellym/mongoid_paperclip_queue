@@ -1,0 +1,57 @@
+h1. Mongoid::PaperclipQueue
+
+Mongoid::PaperclipQueue is a complete rewrite of "Delayed_Paperclip":http://github.com/jstorimer/delayed_paperclip and "Mongoid_Paperclip":http://github.com/meskyanichi/mongoid-paperclip to allow those of us using Mongoid to process "Paperclip":http://github.com/thoughtbot/paperclip attachments in the background using "Resque":http://github.com/defunkt/resque.
+
+h2. Why?
+
+We all know how important it is to keep our page load times down, so this allows us to dump all that processing to Resque to perform in the background.
+
+h2. Installation
+
+Install the gem:
+
+<pre><code>sudo gem install mongoid_paperclip_queue</code></pre>
+
+Or for Rails 3, to your Gemfile:
+
+<pre><code>
+gem 'mongoid_paperclip_queue'
+</code></pre>
+
+h3. Dependencies:
+* Mongoid
+* Paperclip
+* Resque
+
+h2. Usage
+
+In your model:
+
+<pre><code>
+  class User 
+    extend Mongoid::PaperclipQueue
+
+    has_queued_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }
+
+  end
+</code></pre>
+
+Paperclip will behave exactly "like they describe":http://github.com/thoughtbot/paperclip.
+
+h3. Resque
+
+Make sure that you have "Resque":http://github.com/defunkt/resque up and running.  The jobs will be dispatched to the <code>:paperclip</code> queue, so you can correctly dispatch your worker.  Configure resque and your workers exactly as you would otherwise.
+
+h3. Detect the processing state
+
+Processing? detection is built in. We take advantage of Redis since it should already be running, and we can keep our <code>#{attachment_name}_processing</code> field out of our MongoDB and into a more temporary key store. The temporary image url isn't saved anywhere, so you'll have to specify that on your own, but it's easy to use:
+
+<pre><code>
+  @user = User.find(1)
+  url = @user.avatar.processing? ? "/images/missing.png" : @user.avatar.url
+
+</code></pre>
+
+h2. Contributing
+
+Checkout out CONTRIBUTING for more info.
