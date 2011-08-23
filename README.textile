@@ -14,14 +14,14 @@ Install the gem:
 
 Or for Rails 3, to your Gemfile:
 
-<pre><code>
-gem 'mongoid_paperclip_queue'
-</code></pre>
+<pre><code>gem 'mongoid_paperclip_queue'</code></pre>
 
 h3. Dependencies:
 * Mongoid
 * Paperclip
 * Resque
+
+You don't need to include paperclip in your Gemfile.
 
 h2. Usage
 
@@ -34,6 +34,7 @@ In your model:
     has_queued_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }
 
   end
+  
 </code></pre>
 
 Paperclip will behave exactly "like they describe":http://github.com/thoughtbot/paperclip.
