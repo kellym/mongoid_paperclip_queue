@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{mongoid_paperclip_queue}
-  s.version = "0.1"
+  s.version = "0.1.1"
 
   s.authors = ["Kelly Martin"]
   s.summary = %q{Process your Paperclip attachments in the background using Mongoid and Resque.}
@@ -11,10 +11,10 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
-  s.add_runtime_dependency 'paperclip', ["~> 2.3.0"]
-  s.add_runtime_dependency 'redis-namespace'
-  s.add_runtime_dependency 'mongoid'
-  s.add_runtime_dependency 'resque'
+  s.add_dependency 'paperclip', ["~> 2.3.6"]
+  s.add_dependency 'redis-namespace'
+  s.add_dependency 'mongoid'
+  s.add_dependency 'resque'
   
 end
 
