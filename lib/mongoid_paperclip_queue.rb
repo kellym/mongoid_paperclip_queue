@@ -12,11 +12,21 @@ module Mongoid::PaperclipQueue
       
       @queue = :paperclip
       
-      def self.enqueue(klass,field,id)
-        ::Resque.enqueue(self,klass,field,id)
+      def self.enqueue(klass,field,id,*parents)
+        ::Resque.enqueue(self,klass,field,id,*parents)
       end
-      def self.perform(klass,field,id)
-        klass.constantize.find(id).do_reprocessing_on field
+      def self.perform(klass,field,id,*parents)
+        if parents.empty?
+          klass = klass.constantize
+        else
+          p = parents.shift
+          parent = p[0].constantize.find(p[2])
+          parents.each do |p|
+            parent = parent.send(p[1].to_sym).find(p[2])
+          end
+          klass = parent.send(klass.to_sym)
+        end
+        klass.find(id).do_reprocessing_on field
       end
        
     end
@@ -60,8 +70,8 @@ module Mongoid::PaperclipQueue
         include ::Paperclip::Glue
       end
       
+      #send :include, InstanceMethods
       include InstanceMethods
-      
 
       # Invoke Paperclip's #has_attached_file method and passes in the
       # arguments specified by the user that invoked Mongoid::Paperclip#has_mongoid_attached_file
@@ -79,8 +89,28 @@ module Mongoid::PaperclipQueue
           # we don't need it for the processing, it's just a helpful tool
           Mongoid::PaperclipQueue::Redis.server.sadd(self.class.name, "#{field}:#{self.id}")
           
+          # check if the document is embedded. if so, we need that to find it later
+          if self.embedded?
+            parents = []
+            path = self
+            associations = path.reflect_on_all_associations(:embedded_in)
+            until associations.empty?
+              # there should only be one :embedded_in per model, correct me if I'm wrong
+              association = associations.first
+              path = path.send(association.name.to_sym)
+              parents << [association.class_name,association.name, path.id]
+              associations = path.reflect_on_all_associations(:embedded_in)
+              
+            end
+            # we need the relation name, not the class name
+            args = [ self.metadata.name, field, self.id] + parents.reverse
+          else 
+            # or just use our default params like any other Paperclip model
+            args = [self.class.name, field, self.id]
+          end
+          
           # then queue up our processing
-          Mongoid::PaperclipQueue::Queue.enqueue(self.class.name, field, self.id)
+          Mongoid::PaperclipQueue::Queue.enqueue(*args)
         end
       end
  
