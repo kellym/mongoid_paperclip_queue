@@ -64,7 +64,7 @@ class EmbedsDummy
   include Mongoid::Document  
   embeds_many :dummies, cascade_callbacks: true
   
-end
+end 
 
 class DummyPaperclip
   include Mongoid::Document

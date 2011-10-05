@@ -90,7 +90,7 @@ module BaseMongoidPaperclipQueueTest
     DummyPaperclip.after_image_post_process :done_processing
     DummyPaperclip.any_instance.expects(:done_processing)
     dummy = DummyPaperclip.new(:image => File.open("#{RAILS_ROOT}/test/fixtures/12k.png"))
-    dummy.save!
+    dummy.save! 
   end
 
   def test_embedded_queued_attachments

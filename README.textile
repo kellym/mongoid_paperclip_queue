@@ -26,7 +26,7 @@ You don't need to include paperclip in your Gemfile.
 h2. Usage
 
 In your model:
-
+ 
 <pre><code>
   class User 
     include Mongoid::Document

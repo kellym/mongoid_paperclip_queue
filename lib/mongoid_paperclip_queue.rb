@@ -129,7 +129,7 @@ module Mongoid::PaperclipQueue
     module InstanceMethods
       
       def halt_processing
-        false if @is_processing.nil? # || false
+        false if @is_processing.nil?  # || false
       end
             
       def do_reprocessing_on(field)
