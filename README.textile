@@ -14,7 +14,7 @@ Install the gem:
 
 Or for Rails 3, to your Gemfile:
 
-<pre><code>gem "mongoid_paperclip_queue", "~> 0.1.1"</code></pre>
+<pre><code>gem 'mongoid_paperclip_queue'</code></pre>
 
 h3. Dependencies:
 * Mongoid
@@ -26,7 +26,7 @@ You don't need to include paperclip in your Gemfile.
 h2. Usage
 
 In your model:
- 
+  
 <pre><code>
   class User 
     include Mongoid::Document
