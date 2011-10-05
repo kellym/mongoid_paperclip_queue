@@ -29,11 +29,20 @@ In your model:
 
 <pre><code>
   class User 
+    include Mongoid::Document
     extend Mongoid::PaperclipQueue
 
     has_queued_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }
 
   end
+
+  # You can also embed attachments, too.
+  class Team 
+	include Mongoid::Document
+
+	embeds_many :users, :cascade_callbacks => true # this will save all the attachments when Team is saved.
+  end
+
   
 </code></pre>
 
@@ -45,7 +54,7 @@ Make sure that you have "Resque":http://github.com/defunkt/resque up and running
 
 h3. Detect the processing state
 
-Processing? detection is built in. We take advantage of Redis since it should already be running, and we can keep our <code>#{attachment_name}_processing</code> field out of our MongoDB and into a more temporary key store. The temporary image url isn't saved anywhere, so you'll have to specify that on your own, but it's easy to use:
+Processing detection is built in. We take advantage of Redis since it should already be running, and we can keep our <code>#{attachment_name}_processing</code> field out of our MongoDB and into a more temporary key store. The temporary image url isn't saved anywhere, so you'll have to specify that on your own, but it's easy to use:
 
 <pre><code>
   @user = User.find(1)

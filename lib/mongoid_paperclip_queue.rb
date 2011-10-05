@@ -83,6 +83,10 @@ module Mongoid::PaperclipQueue
       # halt processing initially, but allow override for reprocess!
       self.send :"before_#{field}_post_process", :halt_processing
       
+      define_method "#{field}_processing!" do 
+        true
+      end
+      
       self.send :after_save do
         if self.changed.include? "#{field}_updated_at"
           # add a Redis key for the application to check if we're still processing
@@ -125,7 +129,7 @@ module Mongoid::PaperclipQueue
     module InstanceMethods
       
       def halt_processing
-        @is_processing || false
+        false if @is_processing.nil? # || false
       end
             
       def do_reprocessing_on(field)
@@ -139,7 +143,8 @@ end
 module Paperclip
   class Attachment
     def processing?
-      @instance.new_record? || Mongoid::PaperclipQueue::Redis.server.sismember(@instance.class.name, "#{@name}:#{@instance.id}")
+      @instance.respond_to?(:"#{name}_processing!") && (@instance.new_record? || Mongoid::PaperclipQueue::Redis.server.sismember(@instance.class.name, "#{@name}:#{@instance.id}"))
     end    
+    
   end
 end
