@@ -5,16 +5,16 @@ require 'mongoid'
 require 'logger'
 require 'paperclip/railtie'
 require 'resque_unit'
-#require 'redis-namespace'
-
-#Paperclip::Railtie.insert
 
 ROOT       = File.join(File.dirname(__FILE__), '..')
 RAILS_ROOT = ROOT
 $LOAD_PATH << File.join(ROOT, 'lib')
 
-REDIS_PID = "#{ROOT}/test/tmp/redis-test.pid"
-REDIS_CACHE_PATH = "#{ROOT}/test/tmp/cache/"
+TMP_DIR = File.join(File.dirname(__FILE__), "tmp")
+REDIS_PID = "#{TMP_DIR}/redis-test.pid"
+REDIS_CACHE_PATH = "#{TMP_DIR}/cache/"
+
+FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 
 require 'mongoid_paperclip_queue'
 
@@ -39,7 +39,13 @@ class Test::Unit::TestCase
       "databases"     => 16
     }.map { |k, v| "#{k} #{v}" }.join('\n')
     `echo '#{redis_options}' | redis-server -`
-  
+
+    Mongoid.configure do |config|
+      config.master = Mongo::Connection.new.db("mongoid_paperclip_queue_test")
+    end
+    Mongoid.logger = Logger.new(File.dirname(__FILE__) + "/debug.log") 
+     
+    Mongoid.database.collections.reject { |c| c.name == 'system.indexes' }.each(&:drop)
   end
   
   def teardown
@@ -47,17 +53,10 @@ class Test::Unit::TestCase
       cat #{REDIS_PID} | xargs kill -QUIT
       rm -f #{REDIS_CACHE_PATH}dump.rdb
     }
+    Mongoid.database.collections.reject { |c| c.name == 'system.indexes' }.each(&:drop)
   end
 
 end
-
-  
-  
-FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
-Mongoid.configure do |config|
-  config.master = Mongo::Connection.new.db("mongoid_paperclip_queue_test")
-end
-Mongoid.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 
 class EmbedsDummy
   
