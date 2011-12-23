@@ -91,8 +91,8 @@ module Mongoid::PaperclipQueue
         if self.changed.include? "#{field}_updated_at"
           # add a Redis key for the application to check if we're still processing
           # we don't need it for the processing, it's just a helpful tool
-          Mongoid::PaperclipQueue::Redis.server.sadd(self.class.name, "#{field}:#{self.id}")
-          
+          Mongoid::PaperclipQueue::Redis.server.sadd(self.class.name, "#{field}:#{self.id.to_s}")
+
           # check if the document is embedded. if so, we need that to find it later
           if self.embedded?
             parents = []
@@ -102,22 +102,22 @@ module Mongoid::PaperclipQueue
               # there should only be one :embedded_in per model, correct me if I'm wrong
               association = associations.first
               path = path.send(association.name.to_sym)
-              parents << [association.class_name,association.name, path.id]
+              parents << [association.class_name,association.name, path.id.to_s]
               associations = path.reflect_on_all_associations(:embedded_in)
-              
+
             end
             # we need the relation name, not the class name
-            args = [ self.metadata.name, field, self.id] + parents.reverse
+            args = [ self.metadata.name, field, self.id.to_s] + parents.reverse
           else 
             # or just use our default params like any other Paperclip model
-            args = [self.class.name, field, self.id]
+            args = [self.class.name, field, self.id.to_s]
           end
-          
+
           # then queue up our processing
           Mongoid::PaperclipQueue::Queue.enqueue(*args)
         end
       end
- 
+      
       ## 
       # Define the necessary collection fields in Mongoid for Paperclip
       field(:"#{field}_file_name", :type => String)
@@ -135,15 +135,15 @@ module Mongoid::PaperclipQueue
       def do_reprocessing_on(field)
         @is_processing=true
         self.send(field.to_sym).reprocess!
-        Mongoid::PaperclipQueue::Redis.server.srem(self.class.name, "#{field}:#{self.id}")
+        Mongoid::PaperclipQueue::Redis.server.srem(self.class.name, "#{field}:#{self.id.to_s}")
       end
-            
+
     end
 end
 module Paperclip
   class Attachment
     def processing?
-      @instance.respond_to?(:"#{name}_processing!") && (@instance.new_record? || Mongoid::PaperclipQueue::Redis.server.sismember(@instance.class.name, "#{@name}:#{@instance.id}"))
+      @instance.respond_to?(:"#{name}_processing!") && (@instance.new_record? || Mongoid::PaperclipQueue::Redis.server.sismember(@instance.class.name, "#{@name}:#{@instance.id.to_s}"))
     end    
     
   end
