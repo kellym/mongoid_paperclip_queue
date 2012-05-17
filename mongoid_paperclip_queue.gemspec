@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{mongoid_paperclip_queue}
-  s.version = "0.1.3"
+  s.version = "0.1.4"
  
   s.authors = ["Kelly Martin"]
   s.summary = %q{Process your Paperclip attachments in the background using Mongoid and Resque.}
