@@ -9,7 +9,7 @@ module Mongoid::PaperclipQueue
 
   class Queue
 
-    @queue = :paperclip
+    @queue = "#{Rails.env}_paperclip".to_sym
 
     def self.enqueue(klass,field,id,*parents)
       ::Resque.enqueue(self,klass,field,id,*parents)
