@@ -23,7 +23,8 @@ module Mongoid::PaperclipQueue
         parents.each do |p|
           parent = parent.send(p[1].to_sym).find(p[2])
         end
-        klass = parent.send(klass.to_sym)
+        klass = parent.send(klass.to_sym).do_reprocessing_on field
+        return
       end
       klass.find(id).do_reprocessing_on field
     end
