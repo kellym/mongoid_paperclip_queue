@@ -17,16 +17,19 @@ module Mongoid::PaperclipQueue
     def self.perform(klass,field,id,*parents)
       if parents.empty?
         klass = klass.constantize
+        klass.find(id).do_reprocessing_on field
       else
         p = parents.shift
         parent = p[0].constantize.find(p[2])
         parents.each do |p|
           parent = parent.send(p[1].to_sym).find(p[2])
         end
-        klass = parent.send(klass.to_sym).do_reprocessing_on field
-        return
+        klass = parent.send(klass.to_sym)
+        if klass
+          klass.do_reprocessing_on field
+        end
       end
-      klass.find(id).do_reprocessing_on field
+
     end
 
   end
