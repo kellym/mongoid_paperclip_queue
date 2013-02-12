@@ -76,8 +76,8 @@ module Mongoid::PaperclipQueue
 
     # Invoke Paperclip's #has_attached_file method and passes in the
     # arguments specified by the user that invoked Mongoid::Paperclip#has_mongoid_attached_file
-    if options[:logger].nil? && Mongoid::Config.logger.present?
-      options[:logger] = Mongoid::Config.logger
+    if options[:logger].nil? && Mongoid.logger.present?
+      options[:logger] = Mongoid.logger
     end
     has_attached_file(field, options)
 
