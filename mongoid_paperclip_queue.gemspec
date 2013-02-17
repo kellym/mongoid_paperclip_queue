@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'paperclip', ["~> 2.3.6"]
   s.add_dependency 'redis-namespace'
-  s.add_dependency 'mongoid', [">= 2.2"]
+  s.add_dependency 'mongoid', [">= 3.0"]
   s.add_dependency 'resque'
 
 end

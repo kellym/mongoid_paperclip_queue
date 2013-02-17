@@ -17,6 +17,7 @@ module Mongoid::PaperclipQueue
     def self.perform(klass,field,id,*parents)
       if parents.empty?
         klass = klass.constantize
+        klass.find(id).do_reprocessing_on field
       else
         p = parents.shift
         parent = p[0].constantize.find(p[2])
@@ -24,8 +25,11 @@ module Mongoid::PaperclipQueue
           parent = parent.send(p[1].to_sym).find(p[2])
         end
         klass = parent.send(klass.to_sym)
+        if klass
+          klass.do_reprocessing_on field
+        end
       end
-      klass.find(id).do_reprocessing_on field
+
     end
 
   end
@@ -72,8 +76,8 @@ module Mongoid::PaperclipQueue
 
     # Invoke Paperclip's #has_attached_file method and passes in the
     # arguments specified by the user that invoked Mongoid::Paperclip#has_mongoid_attached_file
-    if options[:logger].nil? && Mongoid::Config.logger.present?
-      options[:logger] = Mongoid::Config.logger
+    if options[:logger].nil? && Mongoid.logger.present?
+      options[:logger] = Mongoid.logger
     end
     has_attached_file(field, options)
 
