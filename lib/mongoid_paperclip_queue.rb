@@ -100,7 +100,7 @@ module Mongoid::PaperclipQueue
       end
 
       self.send :after_save do
-        if self.changed.include? "#{field}_updated_at"
+        if self.send("#{field}_changed?".to_sym)
           # add a Redis key for the application to check if we're still processing
           # we don't need it for the processing, it's just a helpful tool
           Mongoid::PaperclipQueue::Redis.server.sadd(self.class.name, "#{field}:#{self.id.to_s}")
