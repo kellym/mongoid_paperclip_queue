@@ -88,6 +88,7 @@ module Mongoid::PaperclipQueue
     field(:"#{field}_content_type", :type => String)
     field(:"#{field}_file_size", :type => Integer)
     field(:"#{field}_updated_at", :type => DateTime)
+    field(:"#{field}_fingerprint", :type => String)
   end
 
   def has_queued_mongoid_attached_file(field, options = {})
@@ -100,7 +101,7 @@ module Mongoid::PaperclipQueue
       end
 
       self.send :after_save do
-        if self.changed.include? "#{field}_updated_at"
+        if self.send("#{field}_fingerprint_changed?".to_sym)
           # add a Redis key for the application to check if we're still processing
           # we don't need it for the processing, it's just a helpful tool
           Mongoid::PaperclipQueue::Redis.server.sadd(self.class.name, "#{field}:#{self.id.to_s}")

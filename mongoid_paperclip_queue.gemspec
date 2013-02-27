@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
-  s.add_dependency 'paperclip', ["~> 2.3.6"]
+  s.add_dependency 'paperclip', ["~>3.4.1"]
   s.add_dependency 'redis-namespace'
   s.add_dependency 'mongoid', [">= 3.0"]
   s.add_dependency 'resque'
