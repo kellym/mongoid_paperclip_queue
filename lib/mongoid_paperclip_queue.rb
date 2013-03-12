@@ -14,19 +14,33 @@ module Mongoid::PaperclipQueue
     def self.enqueue(klass,field,id,*parents)
       ::Resque.enqueue(self,klass,field,id,*parents)
     end
+
     def self.perform(klass,field,id,*parents)
-      if parents.empty?
-        klass = klass.constantize
-        klass.find(id).do_reprocessing_on field
-      else
-        p = parents.shift
-        parent = p[0].constantize.find(p[2])
-        parents.each do |p|
-          parent = parent.send(p[1].to_sym).find(p[2])
+      max_retries = 3
+      retries = 0
+
+      begin
+        if parents.empty?
+          klass = klass.constantize
+          klass.find(id).do_reprocessing_on field
+        else
+          p = parents.shift
+          parent = p[0].constantize.find(p[2])
+          parents.each do |p|
+            parent = parent.send(p[1].to_sym).find(p[2])
+          end
+          klass = parent.send(klass.to_sym)
+          if klass
+            klass.do_reprocessing_on field
+          end
         end
-        klass = parent.send(klass.to_sym)
-        if klass
-          klass.do_reprocessing_on field
+      rescue
+        if retries <= max_retries
+          max_retries += 1
+          sleep 2
+          retry
+        else
+          raise
         end
       end
 
