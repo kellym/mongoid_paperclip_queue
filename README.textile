@@ -38,9 +38,8 @@ In your model:
 
   # You can also embed attachments, too.
   class Team 
-	include Mongoid::Document
-
-	embeds_many :users, :cascade_callbacks => true # this will save all the attachments when Team is saved.
+    include Mongoid::Document
+    embeds_many :users, :cascade_callbacks => true # this will save all the attachments when Team is saved.
   end
 
   
