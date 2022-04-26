@@ -1,5 +1,7 @@
 h1. Mongoid::PaperclipQueue
 
+<b>This repository is archived and now read-only. Other libraries have far surpassed the usefulness of this one.</b>
+
 Mongoid::PaperclipQueue is a complete rewrite of "Delayed_Paperclip":http://github.com/jstorimer/delayed_paperclip and "Mongoid_Paperclip":http://github.com/meskyanichi/mongoid-paperclip to allow those of us using Mongoid to process "Paperclip":http://github.com/thoughtbot/paperclip attachments in the background using "Resque":http://github.com/defunkt/resque.
 
 h2. Why?
